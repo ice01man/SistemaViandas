@@ -1,0 +1,13 @@
+# Paquetes con scripts de build permitidos (pnpm >= 11.18 usa allowBuilds)
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  unrs-resolver: true
+
+# Next 16.3.5 se publicó hace <24 hs y la política de antigüedad mínima lo rechaza
+minimumReleaseAgeExclude:
+  - next
+  - '@next/*'
+  - eslint-config-next

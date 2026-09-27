@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Roles: CLIENTE | ADMIN | COCINA | DELIVERY
+// Grupo de precio: INDIVIDUO | EMPRESA
+// Zona: SUR | CENTRO | NORTE
+model User {
+  id             Int               @id @default(autoincrement())
+  email          String            @unique
+  password       String
+  nombre         String
+  telefono       String?
+  direccion      String?
+  piso           String?
+  zona           String?
+  rol            String            @default("CLIENTE")
+  grupo          String            @default("INDIVIDUO")
+  restricciones  String?
+  activo         Boolean           @default(true)
+  // Última ubicación compartida (cadetes en reparto)
+  ubicacionLat   Float?
+  ubicacionLng   Float?
+  ubicacionAt    DateTime?
+  pedidos        Pedido[]
+  entregas       Pedido[]          @relation("Cadete")
+  notificaciones Notificacion[]
+  suscripciones  PushSuscripcion[]
+  createdAt      DateTime          @default(now())
+}
+
+// Tipo: PEDIDO_NUEVO | PEDIDO_EN_PREPARACION | PEDIDO_PREPARADO | PEDIDO_EN_CAMINO |
+//       PEDIDO_LLEGANDO | PEDIDO_ENTREGADO | PEDIDO_NO_ENTREGADO | PEDIDO_CANCELADO |
+//       PAGO_INFORMADO | PAGO_CONFIRMADO | STOCK_BAJO | CADETE_ASIGNADO
+model Notificacion {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tipo      String
+  titulo    String
+  mensaje   String
+  url       String? // adónde lleva el click (ej: /mis-pedidos)
+  pedidoId  Int? // referencia informativa (sin FK: el pedido puede borrarse)
+  leida     Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, leida])
+}
+
+// Suscripción Web Push de un navegador (base para las notificaciones de la PWA)
+model PushSuscripcion {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// Unidad: UN | KG | G | L | ML
+model Ingrediente {
+  id          Int          @id @default(autoincrement())
+  nombre      String
+  unidad      String
+  stock       Float        @default(0)
+  stockMinimo Float        @default(0)
+  vencimiento DateTime?
+  recetas     RecetaItem[]
+}
+
+// Categoria: GOURMET | VEGETARIANO | ENSALADA
+model Vianda {
+  id          Int          @id @default(autoincrement())
+  nombre      String
+  descripcion String
+  categoria   String
+  activa      Boolean      @default(true)
+  receta      RecetaItem[]
+  menus       MenuDia[]
+}
+
+model RecetaItem {
+  id            Int         @id @default(autoincrement())
+  viandaId      Int
+  ingredienteId Int
+  cantidad      Float
+  vianda        Vianda      @relation(fields: [viandaId], references: [id], onDelete: Cascade)
+  ingrediente   Ingrediente @relation(fields: [ingredienteId], references: [id], onDelete: Cascade)
+
+  @@unique([viandaId, ingredienteId])
+}
+
+// El menu publicado para una fecha: cupo = estimado a producir (limite de venta)
+model MenuDia {
+  id              Int          @id @default(autoincrement())
+  fecha           String // YYYY-MM-DD
+  viandaId        Int
+  cupo            Int
+  precioIndividuo Float
+  precioEmpresa   Float
+  producido       Boolean      @default(false) // coccion finalizada (descuenta insumos)
+  vianda          Vianda       @relation(fields: [viandaId], references: [id], onDelete: Cascade)
+  items           PedidoItem[]
+
+  @@unique([fecha, viandaId])
+}
+
+// Estado: CONFIRMADO | EN_PREPARACION | PREPARADO | EN_CAMINO | ENTREGADO | NO_ENTREGADO | CANCELADO
+// EstadoPago: PENDIENTE | INFORMADO | CONFIRMADO
+model Pedido {
+  id            Int          @id @default(autoincrement())
+  clienteId     Int
+  fechaEntrega  String // YYYY-MM-DD
+  estado        String       @default("CONFIRMADO")
+  estadoPago    String       @default("PENDIENTE")
+  metodoPago    String? // EFECTIVO | TRANSFERENCIA
+  comprobante   String? // referencia del comprobante de pago
+  total         Float
+  direccion     String
+  piso          String?
+  zona          String
+  observaciones String?
+  cadeteId      Int?
+  cliente       User         @relation(fields: [clienteId], references: [id])
+  cadete        User?        @relation("Cadete", fields: [cadeteId], references: [id])
+  items         PedidoItem[]
+  createdAt     DateTime     @default(now())
+}
+
+model PedidoItem {
+  id         Int     @id @default(autoincrement())
+  pedidoId   Int
+  menuDiaId  Int
+  cantidad   Int
+  precioUnit Float
+  pedido     Pedido  @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  menuDia    MenuDia @relation(fields: [menuDiaId], references: [id])
+}
+
+model Config {
+  clave String @id
+  valor String
+}

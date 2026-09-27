@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/* Tema oscuro por clase .dark en <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #fdf9f2;
+  --foreground: #3a3352;
+  --surface: #ffffff;
+  --brie-violet: #7a68b5;
+  --brie-violet-dark: #5d4e8e;
+  --brie-violet-deep: #453a6b;
+  --brie-lavender: #b7a8ea;
+  --brie-lavender-light: #eae4fa;
+  --brie-lavender-soft: #f4f0fd;
+  --brie-orange: #f0873c;
+  --brie-orange-dark: #d96f24;
+  --brie-orange-light: #fbe3d0;
+  --brie-cream: #fdf9f2;
+  --brie-night: #453a6b;
+}
+
+.dark {
+  --background: #14101f;
+  --foreground: #e9e4f7;
+  --surface: #1e1832;
+  --brie-violet: #a795dd;
+  --brie-violet-dark: #beb0e8;
+  --brie-violet-deep: #ded5f6;
+  --brie-lavender: #5d4f91;
+  --brie-lavender-light: #2b2347;
+  --brie-lavender-soft: #241d3b;
+  --brie-orange: #f0873c;
+  --brie-orange-dark: #f59d5e;
+  --brie-orange-light: #45301d;
+  --brie-cream: #14101f;
+  --brie-night: #191430;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  /* Paleta Brie adaptable al tema */
+  --color-brie-violet: var(--brie-violet);
+  --color-brie-violet-dark: var(--brie-violet-dark);
+  --color-brie-violet-deep: var(--brie-violet-deep);
+  --color-brie-lavender: var(--brie-lavender);
+  --color-brie-lavender-light: var(--brie-lavender-light);
+  --color-brie-lavender-soft: var(--brie-lavender-soft);
+  --color-brie-orange: var(--brie-orange);
+  --color-brie-orange-dark: var(--brie-orange-dark);
+  --color-brie-orange-light: var(--brie-orange-light);
+  --color-brie-cream: var(--brie-cream);
+  --color-brie-night: var(--brie-night);
+  /* Colores fijos (no cambian con el tema): botones y superficies saturadas */
+  --color-brie-solid: #7a68b5;
+  --color-brie-solid-dark: #5d4e8e;
+  --font-sans: var(--font-nunito), system-ui, sans-serif;
+  --font-brand: var(--font-pacifico), cursive;
+  /* Animaciones */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-spin-slow: spin-slow 36s linear infinite;
+  --animate-pulse-soft: pulse-soft 5s ease-in-out infinite;
+  --animate-slide-in: slide-in 0.45s ease-out both;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.07);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.font-brand {
+  font-family: var(--font-brand);
+}
+
+/* ---- Scrollbar sutil con los colores de la app ---- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--brie-lavender) 75%, transparent) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--brie-lavender) 75%, transparent);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brie-violet);
+}
+
+/* ---- Componentes base ---- */
+@utility input {
+  @apply w-full rounded-xl border border-brie-lavender bg-surface px-3 py-2 text-sm outline-none focus:border-brie-violet focus:ring-2 focus:ring-brie-lavender-light;
+}
+
+@utility label {
+  @apply mb-1 block text-xs font-bold uppercase tracking-wide text-brie-violet-dark;
+}
+
+@utility btn {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-brie-solid text-white hover:bg-brie-solid-dark;
+}
+
+@utility btn-orange {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-brie-orange text-white hover:bg-brie-orange-dark;
+}
+
+@utility btn-outline {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 border-2 border-brie-violet text-brie-violet hover:bg-brie-lavender-light;
+}
+
+@utility btn-ghost {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 text-brie-violet-dark hover:bg-brie-lavender-light;
+}
+
+@utility card {
+  @apply rounded-2xl border border-brie-lavender-light bg-surface p-5 shadow-sm;
+}
+
+@utility badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
+}
+
+/* ---- Liquid glass (login / registro) ---- */
+@utility glass {
+  @apply rounded-[2rem] border border-white/20 bg-[#41366b]/60 shadow-2xl backdrop-blur-2xl;
+}
+
+@utility input-glass {
+  @apply w-full rounded-xl border border-white/25 bg-white/15 px-3 py-2.5 text-sm text-white placeholder-white/50 outline-none backdrop-blur-sm transition-colors focus:border-white/60 focus:bg-white/20 focus:ring-2 focus:ring-white/20;
+}
+
+@utility label-glass {
+  @apply mb-1 block text-[11px] font-bold uppercase tracking-wide text-white/75;
+}
+
+@utility btn-ghost-glass {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-white/80 px-6 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-white hover:text-[#5d4e8e] hover:shadow-lg;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
